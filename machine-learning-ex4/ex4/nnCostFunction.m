@@ -104,6 +104,33 @@ regular = lambda/2/m*(sum(sum(Theta1(:, 2: size(Theta1, 2)).^2, 2)) + sum(sum(Th
 
 J = J + regular;
 
+%反向传播
+
+% 循环
+for i=1:m
+	a1 = [1, X(m, :)]; %size=(1, 401)
+
+	%z2 = [1, a1 * Theta1']; %size=(1, 26)
+	z2 = a1 * Theta1'; %size=(1, 25)
+	a2 = sigmoid(z2); %size=(1, 25)
+
+	z3 = [1, a2] * Theta2'; %size=(1, 10)
+	a3 = sigmoid(z3); %size=(1, 10)
+
+	%fprintf('%d \n', y_matrix(i,:));
+
+	error3 = a3 - [y_matrix(i, 10), y_matrix(i, 1:9)]; % size=(1, 10);
+
+	error2 = Theta2'*error3'.*sigmoidGradient([1, z2]'); % size=(26, 1)
+
+	Theta1_grad = Theta1_grad + error2(2:end)*a1; %(25, 401)
+	Theta2_grad = Theta2_grad + error3'*[1, a2]; %(10, 26)
+
+end
+
+Theta1_grad = 1/m*Theta1_grad;
+Theta2_grad = 1/m*Theta2_grad;
+
 
 % -------------------------------------------------------------
 
