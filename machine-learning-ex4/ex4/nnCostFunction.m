@@ -67,6 +67,7 @@ y_matrix = zeros(m, num_labels);
 for i=1:m
 	y_matrix(i, y(i)) = 1;
 end
+%fprintf("y_matrix size = (%d, %d) \n", size(y_matrix));
 
 %假设
 h1 = sigmoid([ones(m, 1) X] * Theta1');
@@ -112,24 +113,34 @@ for i=1:m
 
 	%z2 = [1, a1 * Theta1']; %size=(1, 26)
 	z2 = a1 * Theta1'; %size=(1, 25)
-	a2 = sigmoid(z2); %size=(1, 25)
+	a2 = [1, sigmoid(z2)]; %size=(1, 26)
 
-	z3 = [1, a2] * Theta2'; %size=(1, 10)
+	z3 = a2 * Theta2'; %size=(1, 10)
 	a3 = sigmoid(z3); %size=(1, 10)
+	%fprintf("a3 = [%f, %f, %f, %f, %f, %f, %f, %f, %f, %f]\n", a3);
 
-	%fprintf('%d \n', y_matrix(i,:));
+	%fprintf("y_matrix size = (%d, %d) \n", size(y_matrix));
 
-	error3 = a3 - [y_matrix(i, 10), y_matrix(i, 1:9)]; % size=(1, 10);
+	%error3 = a3 - [y_matrix(i, num_labels), y_matrix(i, 1:(num_labels-1))]; % size=(1, 10);
+	error3 = a3 - y_matrix(i, :); % size=(1, 10);
+	%fprintf("y_matrix = [%d, %d, %d, %d, %d, %d, %d, %d, %d, %d]\n", y_matrix(i, :));
+	%fprintf("error3 = [%f, %f, %f, %f, %f, %f, %f, %f, %f, %f]\n", error3);
 
-	error2 = Theta2'*error3'.*sigmoidGradient([1, z2]'); % size=(26, 1)
+	%error2 = Theta2'*error3'.*sigmoidGradient([1, z2]'); % size=(26, 1)
+
+	error2 = Theta2'*error3'.*a2'.*(1-a2'); % size=(26, 1)
+
 
 	Theta1_grad = Theta1_grad + error2(2:end)*a1; %(25, 401)
-	Theta2_grad = Theta2_grad + error3'*[1, a2]; %(10, 26)
+	Theta2_grad = Theta2_grad + error3'*a2; %(10, 26)
 
 end
 
 Theta1_grad = 1/m*Theta1_grad;
+%fprintf("Theta1_grad size = (%d, %d) \n", size(Theta1_grad));
+
 Theta2_grad = 1/m*Theta2_grad;
+%fprintf("Theta2_grad size = (%d, %d) \n", size(Theta2_grad));
 
 
 % -------------------------------------------------------------
