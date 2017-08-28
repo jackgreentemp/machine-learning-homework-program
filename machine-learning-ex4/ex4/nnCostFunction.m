@@ -109,7 +109,7 @@ J = J + regular;
 
 % 循环
 for i=1:m
-	a1 = [1, X(m, :)]; %size=(1, 401)
+	a1 = [1, X(i, :)]; %size=(1, 401),特么，这里一开始把i写成了m，查了好久才发现...欲哭无泪
 
 	%z2 = [1, a1 * Theta1']; %size=(1, 26)
 	z2 = a1 * Theta1'; %size=(1, 25)
@@ -118,6 +118,7 @@ for i=1:m
 	z3 = a2 * Theta2'; %size=(1, 10)
 	a3 = sigmoid(z3); %size=(1, 10)
 	%fprintf("a3 = [%f, %f, %f, %f, %f, %f, %f, %f, %f, %f]\n", a3);
+	%fprintf("a3-h2 = [%f, %f, %f, %f, %f, %f, %f, %f, %f, %f]\n", a3-h2(i, :));
 
 	%fprintf("y_matrix size = (%d, %d) \n", size(y_matrix));
 
@@ -136,11 +137,16 @@ for i=1:m
 
 end
 
-Theta1_grad = 1/m*Theta1_grad;
+Theta1_grad(:, 1) = 1/m*Theta1_grad(:, 1);
 %fprintf("Theta1_grad size = (%d, %d) \n", size(Theta1_grad));
 
-Theta2_grad = 1/m*Theta2_grad;
+Theta2_grad(:, 1) = 1/m*Theta2_grad(:, 1);
 %fprintf("Theta2_grad size = (%d, %d) \n", size(Theta2_grad));
+
+% 正则化
+Theta1_grad(:, 2:end) = 1/m*Theta1_grad(:, 2:end) + lambda/m*Theta1(:, 2:end);
+
+Theta2_grad(:, 2:end) = 1/m*Theta2_grad(:, 2:end) + lambda/m*Theta2(:, 2:end);
 
 
 % -------------------------------------------------------------
